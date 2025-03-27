@@ -14,7 +14,7 @@ export class MakeOrder {
     this.orderRepository.create({
       number: "1",
       products: input.products,
-      status: "TO_PAY",
+      status: "RECEIVED",
     });
   }
 }

@@ -1,5 +1,4 @@
 export const OrderStatus = {
-  TO_PAY: "TO_PAY",
   RECEIVED: "RECEIVED",
   IN_PREPARATION: "IN_PREPARATION",
   READY: "READY",

@@ -58,7 +58,7 @@ class OrderFixture {
         { id: "quantum-beef-burger", quantity: 1 },
         { id: "crypto-salmon-roll", quantity: 2 },
       ],
-      status: OrderStatus.TO_PAY,
+      status: OrderStatus.RECEIVED,
     });
 
     return this;

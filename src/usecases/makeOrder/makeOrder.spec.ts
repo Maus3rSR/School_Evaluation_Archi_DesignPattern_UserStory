@@ -23,7 +23,14 @@ describe("Make order usecase", () => {
 
       await fixture.whenIMakeTheOrder();
 
-      fixture.thenTheOrderShouldBeCreated();
+      fixture.thenTheOrderShouldBeCreated({
+        number: "1",
+        products: [
+          { id: "quantum-beef-burger", quantity: 1 },
+          { id: "crypto-salmon-roll", quantity: 2 },
+        ],
+        status: OrderStatus.RECEIVED,
+      });
     });
   });
 });
@@ -49,17 +56,10 @@ class OrderFixture {
     return this;
   }
 
-  thenTheOrderShouldBeCreated(): this {
+  thenTheOrderShouldBeCreated(expectedOrder: OrderProps): this {
     const createdOrder = this.orderRepository.orders.get("1")!;
 
-    assertEquals(createdOrder, {
-      number: "1",
-      products: [
-        { id: "quantum-beef-burger", quantity: 1 },
-        { id: "crypto-salmon-roll", quantity: 2 },
-      ],
-      status: OrderStatus.RECEIVED,
-    });
+    assertEquals(createdOrder, expectedOrder);
 
     return this;
   }

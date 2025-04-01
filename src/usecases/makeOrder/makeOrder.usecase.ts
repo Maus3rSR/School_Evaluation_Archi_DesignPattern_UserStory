@@ -8,13 +8,20 @@ export type MakeOrderInput = {
 };
 
 export class MakeOrder {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly idGenerator: IterableIterator<string, string>,
+    private readonly orderRepository: OrderRepository
+  ) {}
 
-  execute(input: MakeOrderInput) {
+  execute(input: MakeOrderInput): string {
+    const orderNumber = this.idGenerator.next().value;
+
     this.orderRepository.create({
-      number: "1",
+      number: orderNumber,
       products: input.products,
       status: "RECEIVED",
     });
+
+    return orderNumber;
   }
 }

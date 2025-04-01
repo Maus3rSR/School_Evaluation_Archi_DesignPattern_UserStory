@@ -13,13 +13,14 @@ export class MakeOrder {
     private readonly orderRepository: OrderRepository
   ) {}
 
-  execute(input: MakeOrderInput): string {
+  async execute(input: MakeOrderInput): Promise<string> {
     const orderNumber = this.idGenerator.next().value;
 
-    this.orderRepository.create({
+    await this.orderRepository.create({
       number: orderNumber,
       products: input.products,
       status: "RECEIVED",
+      total: 0,
     });
 
     return orderNumber;

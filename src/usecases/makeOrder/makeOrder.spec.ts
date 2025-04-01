@@ -1,28 +1,28 @@
 import { describe, it, beforeEach } from "jsr:@std/testing/bdd";
 import { assertEquals } from "@std/assert";
+
 import { MakeOrder, MakeOrderInput } from "./makeOrder.usecase.ts";
 import { OrderProps, OrderStatus } from "../../domain/order.ts";
-import { OrderRepository } from "../../out/order.repository.ts";
+import {
+  DeterministicIdentityGenerator,
+  StubOrderRepository,
+} from "../fixtures/stubs.ts";
 
 let fixture: OrderFixture;
 
 beforeEach(() => {
   fixture = new OrderFixture();
   fixture.idGenerator.nextIdIs("1");
-  fixture.idGenerator.nextIdIs("2");
-  fixture.idGenerator.nextIdIs("3");
 });
 
 describe("Make order usecase", () => {
-  it("should make a new order", async () => {
-    fixture.givenAnOrderToMake({
+  it("Should make a new order", async () => {
+    await fixture.whenIMakeTheOrder({
       products: [
         { id: "quantum-beef-burger", quantity: 1 },
         { id: "crypto-salmon-roll", quantity: 2 },
       ],
     });
-
-    await fixture.whenIMakeTheOrder();
 
     fixture.thenTheOrderShouldBeCreated({
       number: "1",
@@ -31,9 +31,23 @@ describe("Make order usecase", () => {
         { id: "crypto-salmon-roll", quantity: 2 },
       ],
       status: OrderStatus.RECEIVED,
+      total: 0,
     });
 
     fixture.thenOrderNumberRetrievedShouldBe("1");
+  });
+
+  describe("Order total price", () => {
+    it("Should compute the total price of order based on quantity", async () => {
+      await fixture.whenIMakeTheOrder({
+        products: [
+          { id: "quantum-beef-burger", quantity: 1 },
+          { id: "crypto-salmon-roll", quantity: 2 },
+        ],
+      });
+
+      fixture.thenOrderTotalShouldBe(20);
+    });
   });
 });
 
@@ -41,8 +55,7 @@ class OrderFixture {
   readonly idGenerator!: DeterministicIdentityGenerator;
   private readonly orderRepository!: StubOrderRepository;
   private readonly makeOrderUseCase!: MakeOrder;
-  private orderToMake!: MakeOrderInput;
-  private result: unknown;
+  private result!: string;
 
   constructor() {
     this.idGenerator = new DeterministicIdentityGenerator();
@@ -53,13 +66,8 @@ class OrderFixture {
     );
   }
 
-  givenAnOrderToMake(input: MakeOrderInput): this {
-    this.orderToMake = input;
-    return this;
-  }
-
-  whenIMakeTheOrder(): this {
-    this.result = this.makeOrderUseCase.execute(this.orderToMake);
+  async whenIMakeTheOrder(order: MakeOrderInput): Promise<this> {
+    this.result = await this.makeOrderUseCase.execute(order);
     return this;
   }
 
@@ -69,30 +77,14 @@ class OrderFixture {
     return this;
   }
 
-  thenOrderNumberRetrievedShouldBe(
-    expectedReturn: ReturnType<MakeOrder["execute"]>
-  ): this {
-    assertEquals(this.result, expectedReturn);
+  thenOrderTotalShouldBe(expectedTotal: number): this {
+    const createdOrder = this.orderRepository.orders.values().next().value!;
+    assertEquals(createdOrder.total, expectedTotal);
     return this;
   }
-}
 
-class StubOrderRepository implements OrderRepository {
-  public orders: Map<string, OrderProps> = new Map();
-  // deno-lint-ignore require-await
-  async create(order: OrderProps): Promise<void> {
-    this.orders.set(order.number, order);
-  }
-}
-
-class DeterministicIdentityGenerator {
-  private nextIds: Array<string> = [];
-
-  nextIdIs(id: string) {
-    this.nextIds.push(id);
-  }
-
-  *generator(): IterableIterator<string> {
-    yield* this.nextIds;
+  thenOrderNumberRetrievedShouldBe(expectedReturn: string): this {
+    assertEquals(this.result, expectedReturn);
+    return this;
   }
 }

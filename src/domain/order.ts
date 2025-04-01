@@ -14,5 +14,6 @@ export type OrderProps = {
     id: string;
     quantity: number;
   }[];
+  total: number;
   status: OrderStatus;
 };

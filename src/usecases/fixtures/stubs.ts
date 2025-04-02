@@ -1,5 +1,5 @@
 import { DiscountRule } from "../../domain/discount.ts";
-import { OrderProps } from "../../domain/order.ts";
+import { Order, OrderProps } from "../../domain/order.ts";
 import { DiscountRepository } from "../../out/discount.repository.ts";
 import { OrderRepository } from "../../out/order.repository.ts";
 import { ProductPriceTable } from "../../out/product.repository.ts";
@@ -7,8 +7,18 @@ import { ProductPriceTable } from "../../out/product.repository.ts";
 export class StubOrderRepository implements OrderRepository {
   public orders: Map<string, OrderProps> = new Map();
   // deno-lint-ignore require-await
-  async create(order: OrderProps): Promise<void> {
-    this.orders.set(order.number, order);
+  async create(order: Order): Promise<void> {
+    this.orders.set(order.toSnapshot().number, order.toSnapshot());
+  }
+
+  async update(order: Order): Promise<void> {
+    this.orders.set(order.toSnapshot().number, order.toSnapshot());
+  }
+
+  async retrieveFromOrderNumber(
+    orderNumber: string
+  ): Promise<Order | undefined> {
+    return Order.fromSnapshot(this.orders.get(orderNumber)!);
   }
 }
 

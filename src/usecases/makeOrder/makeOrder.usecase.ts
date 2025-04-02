@@ -1,4 +1,5 @@
 import { DeliveryMethod } from "../../domain/delivery.ts";
+import { Order } from "../../domain/order.ts";
 import { OrderRepository } from "../../out/order.repository.ts";
 import { OrderTotalService } from "../../services/orderTotal.service.ts";
 
@@ -23,13 +24,14 @@ export class MakeOrder {
     input.deliveryMethod = input.deliveryMethod ?? DeliveryMethod.DINE_IN;
     const total = await this.orderTotalService.computePrice(input);
 
-    await this.orderRepository.create({
-      number: orderNumber,
-      products: input.products,
-      total,
-      deliveryMethod: input.deliveryMethod,
-      status: "RECEIVED",
-    });
+    await this.orderRepository.create(
+      Order.make({
+        number: orderNumber,
+        products: input.products,
+        total,
+        deliveryMethod: input.deliveryMethod,
+      })
+    );
 
     return orderNumber;
   }

@@ -1,18 +1,8 @@
 import { describe, it, beforeEach, test } from "jsr:@std/testing/bdd";
-import { assertEquals } from "@std/assert";
 
-import { MakeOrder, MakeOrderInput } from "./makeOrder.usecase.ts";
-import { OrderProps, OrderStatus } from "../../domain/order.ts";
-import {
-  DeterministicIdentityGenerator,
-  StubDiscountRepository,
-  StubOrderRepository,
-  StubProductRepository,
-} from "../fixtures/stubs.ts";
-import { ProductPriceTable } from "../../out/product.repository.ts";
-import { DiscountRule } from "../../domain/discount.ts";
+import { OrderState } from "../../domain/order.ts";
 import { DeliveryMethod } from "../../domain/delivery.ts";
-import { OrderTotalService } from "../../services/orderTotal.service.ts";
+import { OrderFixture } from "../fixtures/order.ts";
 
 let fixture: OrderFixture;
 
@@ -20,7 +10,7 @@ beforeEach(() => {
   fixture = new OrderFixture();
 });
 
-describe("Make order usecase", () => {
+describe("Make an order usecase", () => {
   beforeEach(() => {
     fixture.idGenerator.nextIdIs("1");
   });
@@ -40,7 +30,7 @@ describe("Make order usecase", () => {
         { id: "crypto-salmon-roll", quantity: 2 },
       ],
       total: 0,
-      status: OrderStatus.RECEIVED,
+      state: OrderState.RECEIVED,
       deliveryMethod: DeliveryMethod.DINE_IN,
     });
 
@@ -137,64 +127,3 @@ describe("Make order usecase", () => {
     });
   });
 });
-
-class OrderFixture {
-  readonly idGenerator: DeterministicIdentityGenerator =
-    new DeterministicIdentityGenerator();
-  private readonly orderRepository: StubOrderRepository =
-    new StubOrderRepository();
-  private readonly productRepository: StubProductRepository =
-    new StubProductRepository();
-  private readonly discountRepository: StubDiscountRepository =
-    new StubDiscountRepository();
-
-  private readonly makeOrderUseCase!: MakeOrder;
-
-  private result!: string;
-
-  constructor() {
-    this.makeOrderUseCase = new MakeOrder(
-      this.idGenerator.generator(),
-      this.orderRepository,
-      new OrderTotalService(this.productRepository, this.discountRepository)
-    );
-  }
-
-  givenProductPrices(productPrices: ProductPriceTable): this {
-    this.productRepository.prices = productPrices;
-    return this;
-  }
-
-  givenSomeDiscountRule(discountRule: DiscountRule): this {
-    this.discountRepository.rules.push(discountRule);
-    return this;
-  }
-
-  async whenIMakeTheOrder(order: MakeOrderInput): Promise<this> {
-    this.result = await this.makeOrderUseCase.execute(order);
-    return this;
-  }
-
-  thenDeliveryMethodShouldBe(expectedMethod: DeliveryMethod): this {
-    const createdOrder = this.orderRepository.orders.values().next().value!;
-    assertEquals(createdOrder.deliveryMethod, expectedMethod);
-    return this;
-  }
-
-  thenTheOrderShouldBeCreated(expectedOrder: OrderProps): this {
-    const createdOrder = this.orderRepository.orders.get(expectedOrder.number)!;
-    assertEquals(createdOrder, expectedOrder);
-    return this;
-  }
-
-  thenOrderTotalShouldBe(expectedTotal: number): this {
-    const createdOrder = this.orderRepository.orders.values().next().value!;
-    assertEquals(createdOrder.total, expectedTotal);
-    return this;
-  }
-
-  thenOrderNumberRetrievedShouldBe(expectedReturn: string): this {
-    assertEquals(this.result, expectedReturn);
-    return this;
-  }
-}

@@ -1,5 +1,7 @@
-import { OrderProps } from "../domain/order.ts";
+import { Order } from "../domain/order.ts";
 
 export interface OrderRepository {
-  create(order: OrderProps): Promise<void>;
+  create(order: Order): Promise<void>;
+  update(order: Order): Promise<void>;
+  retrieveFromOrderNumber(orderNumber: string): Promise<Order | undefined>;
 }

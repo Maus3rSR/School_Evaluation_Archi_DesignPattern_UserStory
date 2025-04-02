@@ -1,4 +1,6 @@
+import { DiscountRule } from "../../domain/discount.ts";
 import { OrderProps } from "../../domain/order.ts";
+import { DiscountRepository } from "../../out/discount.repository.ts";
 import { OrderRepository } from "../../out/order.repository.ts";
 import { ProductPriceTable } from "../../out/product.repository.ts";
 
@@ -25,8 +27,16 @@ export class DeterministicIdentityGenerator {
 export class StubProductRepository implements StubProductRepository {
   prices: ProductPriceTable = {};
 
-  priceForProducts(ids: string[]): Promise<ProductPriceTable> {
+  async priceForProducts(ids: string[]): Promise<ProductPriceTable> {
     const map = ids.map((id) => ({ [id]: this.prices[id] }));
     return Object.assign({}, ...map);
+  }
+}
+
+export class StubDiscountRepository implements DiscountRepository {
+  rules: Array<DiscountRule> = [];
+
+  async fetchDiscountRule(code: string): Promise<DiscountRule | undefined> {
+    return this.rules.find((rule) => rule.code === code);
   }
 }

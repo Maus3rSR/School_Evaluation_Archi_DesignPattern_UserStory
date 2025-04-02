@@ -1,3 +1,5 @@
+import { DeliveryMethod } from "./delivery.ts";
+
 export const OrderStatus = {
   RECEIVED: "RECEIVED",
   IN_PREPARATION: "IN_PREPARATION",
@@ -16,4 +18,5 @@ export type OrderProps = {
   }[];
   total: number;
   status: OrderStatus;
+  deliveryMethod: DeliveryMethod;
 };

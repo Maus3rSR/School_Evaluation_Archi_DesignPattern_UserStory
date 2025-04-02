@@ -4,6 +4,7 @@ export const OrderState = {
   RECEIVED: "RECEIVED",
   IN_PREPARATION: "IN_PREPARATION",
   READY: "READY",
+  SERVED: "SERVED",
   DELIVERING: "DELIVERING",
   DELIVERED: "DELIVERED",
 } as const;
@@ -25,7 +26,15 @@ export class Order {
   private constructor(private props: OrderProps) {}
 
   toState(newState: OrderState) {
-    this.props.state = newState;
+    if (
+      (this.props.state === "RECEIVED" && newState === "IN_PREPARATION") ||
+      (this.props.state === "IN_PREPARATION" && newState === "READY") ||
+      (this.props.state === "READY" &&
+        ["SERVED", "DELIVERING"].includes(newState)) ||
+      (this.props.state === "DELIVERING" && newState === "DELIVERED")
+    ) {
+      this.props.state = newState;
+    }
   }
 
   static make(props: Omit<OrderProps, "state">): Order {

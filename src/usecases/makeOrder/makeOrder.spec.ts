@@ -12,6 +12,7 @@ import {
 import { ProductPriceTable } from "../../out/product.repository.ts";
 import { DiscountRule } from "../../domain/discount.ts";
 import { DeliveryMethod } from "../../domain/delivery.ts";
+import { OrderTotalService } from "../../services/orderTotal.service.ts";
 
 let fixture: OrderFixture;
 
@@ -46,7 +47,7 @@ describe("Make order usecase", () => {
     fixture.thenOrderNumberRetrievedShouldBe("1");
   });
 
-  describe("Order total price", () => {
+  describe("Standard order total computation", () => {
     beforeEach(() => {
       fixture.givenProductPrices({
         "quantum-beef-burger": 10,
@@ -54,7 +55,7 @@ describe("Make order usecase", () => {
       });
     });
 
-    describe("Should compute the total price of order based on quantity", () => {
+    describe("Compute the total price of order based on quantity", () => {
       test("Order: 1x10", async () => {
         await fixture.whenIMakeTheOrder({
           products: [{ id: "quantum-beef-burger", quantity: 1 }],
@@ -73,7 +74,9 @@ describe("Make order usecase", () => {
 
         fixture.thenOrderTotalShouldBe(20);
       });
+    });
 
+    describe("Order total computation with discount", () => {
       it("Order: 1x10 and 2x5 with discount 20%", async () => {
         fixture.givenProductPrices({
           "quantum-beef-burger": 10,
@@ -96,40 +99,40 @@ describe("Make order usecase", () => {
 
         fixture.thenOrderTotalShouldBe(16);
       });
+    });
 
-      describe("Delivery fees", () => {
-        beforeEach(() => {
-          fixture.givenProductPrices({
-            "quantum-beef-burger": 10,
-          });
+    describe("Order total computation with delivery fees", () => {
+      beforeEach(() => {
+        fixture.givenProductPrices({
+          "quantum-beef-burger": 10,
+        });
+      });
+
+      it("Order: 1x10, Drone add 5 to total", async () => {
+        await fixture.whenIMakeTheOrder({
+          products: [{ id: "quantum-beef-burger", quantity: 1 }],
+          deliveryMethod: DeliveryMethod.DRONE,
         });
 
-        it("Order: 1x10, Drone add 5 to total", async () => {
-          await fixture.whenIMakeTheOrder({
-            products: [{ id: "quantum-beef-burger", quantity: 1 }],
-            deliveryMethod: DeliveryMethod.DRONE,
-          });
+        fixture.thenOrderTotalShouldBe(15);
+      });
 
-          fixture.thenOrderTotalShouldBe(15);
+      it("Order: 1x10, Hoverbike add 10 to total", async () => {
+        await fixture.whenIMakeTheOrder({
+          products: [{ id: "quantum-beef-burger", quantity: 1 }],
+          deliveryMethod: DeliveryMethod.HOVERBIKE,
         });
 
-        it("Order: 1x10, Hoverbike add 10 to total", async () => {
-          await fixture.whenIMakeTheOrder({
-            products: [{ id: "quantum-beef-burger", quantity: 1 }],
-            deliveryMethod: DeliveryMethod.HOVERBIKE,
-          });
+        fixture.thenOrderTotalShouldBe(20);
+      });
 
-          fixture.thenOrderTotalShouldBe(20);
+      it("Order: 1x10, SUPEERC0NDUCT0R add 15 to total", async () => {
+        await fixture.whenIMakeTheOrder({
+          products: [{ id: "quantum-beef-burger", quantity: 1 }],
+          deliveryMethod: DeliveryMethod.SUPEERC0NDUCT0R,
         });
 
-        it("Order: 1x10, SUPEERC0NDUCT0R add 15 to total", async () => {
-          await fixture.whenIMakeTheOrder({
-            products: [{ id: "quantum-beef-burger", quantity: 1 }],
-            deliveryMethod: DeliveryMethod.SUPEERC0NDUCT0R,
-          });
-
-          fixture.thenOrderTotalShouldBe(25);
-        });
+        fixture.thenOrderTotalShouldBe(25);
       });
     });
   });
@@ -153,8 +156,7 @@ class OrderFixture {
     this.makeOrderUseCase = new MakeOrder(
       this.idGenerator.generator(),
       this.orderRepository,
-      this.productRepository,
-      this.discountRepository
+      new OrderTotalService(this.productRepository, this.discountRepository)
     );
   }
 

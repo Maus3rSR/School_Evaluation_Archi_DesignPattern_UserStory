@@ -1,5 +1,6 @@
 import { OrderProps } from "../../domain/order.ts";
 import { OrderRepository } from "../../out/order.repository.ts";
+import { ProductPriceTable } from "../../out/product.repository.ts";
 
 export class StubOrderRepository implements OrderRepository {
   public orders: Map<string, OrderProps> = new Map();
@@ -18,5 +19,14 @@ export class DeterministicIdentityGenerator {
 
   *generator(): IterableIterator<string> {
     yield* this.nextIds;
+  }
+}
+
+export class StubProductRepository implements StubProductRepository {
+  prices: ProductPriceTable = {};
+
+  priceForProducts(ids: string[]): Promise<ProductPriceTable> {
+    const map = ids.map((id) => ({ [id]: this.prices[id] }));
+    return Object.assign({}, ...map);
   }
 }

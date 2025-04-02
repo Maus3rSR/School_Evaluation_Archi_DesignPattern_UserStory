@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "jsr:@std/testing/bdd";
+import { describe, it, beforeEach, test } from "jsr:@std/testing/bdd";
 import { assertEquals } from "@std/assert";
 
 import { MakeOrder, MakeOrderInput } from "./makeOrder.usecase.ts";
@@ -6,16 +6,21 @@ import { OrderProps, OrderStatus } from "../../domain/order.ts";
 import {
   DeterministicIdentityGenerator,
   StubOrderRepository,
+  StubProductRepository,
 } from "../fixtures/stubs.ts";
+import { ProductPriceTable } from "../../out/product.repository.ts";
 
 let fixture: OrderFixture;
 
 beforeEach(() => {
   fixture = new OrderFixture();
-  fixture.idGenerator.nextIdIs("1");
 });
 
 describe("Make order usecase", () => {
+  beforeEach(() => {
+    fixture.idGenerator.nextIdIs("1");
+  });
+
   it("Should make a new order", async () => {
     await fixture.whenIMakeTheOrder({
       products: [
@@ -38,32 +43,60 @@ describe("Make order usecase", () => {
   });
 
   describe("Order total price", () => {
-    it("Should compute the total price of order based on quantity", async () => {
-      await fixture.whenIMakeTheOrder({
-        products: [
-          { id: "quantum-beef-burger", quantity: 1 },
-          { id: "crypto-salmon-roll", quantity: 2 },
-        ],
+    beforeEach(() => {
+      fixture.givenProductPrices({
+        "quantum-beef-burger": 10,
+        "crypto-salmon-roll": 5,
+      });
+    });
+
+    describe("Should compute the total price of order based on quantity", () => {
+      test("Order: 1x10", async () => {
+        await fixture.whenIMakeTheOrder({
+          products: [{ id: "quantum-beef-burger", quantity: 1 }],
+        });
+
+        fixture.thenOrderTotalShouldBe(10);
       });
 
-      fixture.thenOrderTotalShouldBe(20);
+      test("Order: 1x10 and 2x5", async () => {
+        await fixture.whenIMakeTheOrder({
+          products: [
+            { id: "quantum-beef-burger", quantity: 1 },
+            { id: "crypto-salmon-roll", quantity: 2 },
+          ],
+        });
+
+        fixture.thenOrderTotalShouldBe(20);
+      });
     });
   });
 });
 
 class OrderFixture {
   readonly idGenerator!: DeterministicIdentityGenerator;
+
   private readonly orderRepository!: StubOrderRepository;
+  private readonly productRepository!: StubProductRepository;
+
   private readonly makeOrderUseCase!: MakeOrder;
+
   private result!: string;
 
   constructor() {
     this.idGenerator = new DeterministicIdentityGenerator();
     this.orderRepository = new StubOrderRepository();
+    this.productRepository = new StubProductRepository();
     this.makeOrderUseCase = new MakeOrder(
       this.idGenerator.generator(),
-      this.orderRepository
+      this.orderRepository,
+      this.productRepository
     );
+  }
+
+  givenProductPrices(productPrices: ProductPriceTable): this {
+    this.productRepository.prices = productPrices;
+    return this;
   }
 
   async whenIMakeTheOrder(order: MakeOrderInput): Promise<this> {

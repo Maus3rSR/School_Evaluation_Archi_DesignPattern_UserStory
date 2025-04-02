@@ -2,11 +2,14 @@ import { DiscountRule } from "../../domain/discount.ts";
 import { Order, OrderProps } from "../../domain/order.ts";
 import { DiscountRepository } from "../../out/discount.repository.ts";
 import { OrderRepository } from "../../out/order.repository.ts";
-import { ProductPriceTable } from "../../out/product.repository.ts";
+import {
+  ProductPriceTable,
+  ProductRepository,
+} from "../../out/product.repository.ts";
 
 export class StubOrderRepository implements OrderRepository {
   public orders: Map<string, OrderProps> = new Map();
-  // deno-lint-ignore require-await
+
   async create(order: Order): Promise<void> {
     this.orders.set(order.toSnapshot().number, order.toSnapshot());
   }
@@ -34,7 +37,7 @@ export class DeterministicIdentityGenerator {
   }
 }
 
-export class StubProductRepository implements StubProductRepository {
+export class StubProductRepository implements ProductRepository {
   prices: ProductPriceTable = {};
 
   async priceForProducts(ids: string[]): Promise<ProductPriceTable> {

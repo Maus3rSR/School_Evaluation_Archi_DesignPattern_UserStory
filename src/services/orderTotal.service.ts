@@ -24,7 +24,7 @@ export class OrderTotalService {
         input.discountCode
       );
 
-      total -= (total * (discount?.value ?? 0)) / 100;
+      total -= total * ((discount?.value ?? 0) / 100);
     }
 
     switch (input.deliveryMethod) {

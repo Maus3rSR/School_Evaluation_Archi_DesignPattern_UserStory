@@ -4,10 +4,9 @@ NeuroByte Fast Food est une chaîne de restaurants cybernétique futuriste qui p
 
 ## Installation & Scripts
 
-- `deno install`: Installation des dépendances
 - `deno run src/main.ts`: Lancement du programme de production
-- `deno run test` : Lancement des tests unitaires
-- `deno run test:watch` : Lancement des tests unitaires avec rechargement automatique à chaque changement de fichier
+- `deno task test` : Lancement des tests unitaires
+- `deno task test:watch` : Lancement des tests unitaires avec rechargement automatique à chaque changement de fichier
 
 ## Consignes
 

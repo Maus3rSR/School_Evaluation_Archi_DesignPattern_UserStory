@@ -32,11 +32,11 @@ _Vérifiez que votre code fonctionne toujours à l'aide des tests unitaires qui 
 
 ### Architecture logiciel
 
-Le fast food souhaite faire évoluer les fonctionnalités de son application en cours de conception de la façon suivante :
+L'entreprise de la chaîne de restaurant souhaite faire évoluer les fonctionnalités de son application en cours de conception de la façon suivante :
 
 **La direction doit pouvoir** :
 
-- Avoir accès à des statistiques et rapports pour suivre leur activité et optimiser leurs ventes
+- Avoir accès à des statistiques et rapports pour suivre leur activité et optimiser leurs ventes.
 
 **Les différents moyens de livraison automatisés (drone, hoverbike, supeerc0nduct0r) doivent pouvoir** :
 

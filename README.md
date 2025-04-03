@@ -2,7 +2,7 @@
 
 NeuroByte Fast Food est une chaîne de restaurants cybernétique futuriste qui propose des produits de fast-food avec livraison automatisée supportée par une IA quantique nouvelle génération.
 
-## Installation & Scripts
+## Lancement & Tâches
 
 - `deno run src/main.ts`: Lancement du programme de production
 - `deno task test` : Lancement des tests unitaires

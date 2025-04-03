@@ -42,7 +42,7 @@ const makeOrder = new MakeOrder(
 /**
  * Programme
  */
-async function NeuroBiteDeliveryFastFood() {
+async function NeuroByteFastFood() {
   console.log("Welcome to NeuroBite Delivery Fast Food");
 
   console.log(`Making an order...`);
@@ -117,4 +117,4 @@ async function NeuroBiteDeliveryFastFood() {
   );
 }
 
-NeuroBiteDeliveryFastFood();
+NeuroByteFastFood();

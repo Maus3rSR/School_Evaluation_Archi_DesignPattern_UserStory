@@ -72,6 +72,6 @@ Indiquez quel type d'architecture vous souhaitez utiliser et justifiez votre cho
 - Patrons de conception (design patterns) : 8 points
 - Architecture logicielle : 8 points
 
-Un malus peut être appliqué si vos propositions ne sont pas originales et ressemblent à d'autres travaux.
+Un malus peut être appliqué si vos propositions ne sont pas originaux et ressemblent à d'autres travaux.
 
 Bon courage !
